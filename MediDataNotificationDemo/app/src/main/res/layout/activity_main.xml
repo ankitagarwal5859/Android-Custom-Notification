@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginRight="20dp"
+        android:orientation="vertical">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_form"
+            android:text="Form1,Form2,Form3"
+            ></EditText>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <EditText
+                android:id="@+id/et_start_date"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:editable="false"
+                android:hint="Start Date" />
+
+            <EditText
+                android:id="@+id/et_start_time"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:editable="false"
+                android:hint="Start Time" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_end_date"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:editable="false"
+                android:hint="End Date" />
+
+            <EditText
+                android:id="@+id/et_end_time"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:editable="false"
+                android:hint="End Time" />
+
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/et_per"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:hint="Select percentage b/w 1 to 100"
+            android:inputType="number"
+            android:maxLength="3"></EditText>
+
+        <Button
+            android:id="@+id/chanel1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:padding="10dp"
+            android:text="Create Notification" />
+    </LinearLayout>
+
+
+</RelativeLayout>
