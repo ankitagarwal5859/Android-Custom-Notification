@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,18 +12,18 @@
         android:layout_marginTop="100dp"
         android:layout_marginRight="20dp"
         android:orientation="vertical">
+
         <EditText
+            android:id="@+id/et_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/et_form"
-            android:text="Form1,Form2,Form3"
-            ></EditText>
+            android:text="Form1,Form2"></EditText>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/et_start_date"
@@ -73,9 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:hint="Select percentage b/w 1 to 100"
-            android:inputType="number"
-            android:maxLength="3"></EditText>
+            android:hint="Select percentage b/w 1 to 100"></EditText>
 
         <Button
             android:id="@+id/chanel1"
@@ -85,6 +82,15 @@
             android:layout_marginTop="50dp"
             android:padding="10dp"
             android:text="Create Notification" />
+
+        <Button
+            android:id="@+id/show_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:padding="10dp"
+            android:text="Show Data" />
     </LinearLayout>
 
 

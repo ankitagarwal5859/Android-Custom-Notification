@@ -13,10 +13,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
     @Override
 
     public void onReceive(Context context, Intent intent) {
-
-        Log.d(TAG, "Alarm receiver called!!!!");
-        String message = "Schedule notification";
-
+        String message = intent.getExtras().getString("Message");
+        Log.d(TAG, "Alarm receiver called!!!!" + message);
         Random r = new Random();
         int notificationId = r.nextInt(100) + 1;
         NotificationUtils.createNotification(context, "1", "Testing", "Medidata", "Medidata", message, notificationId);

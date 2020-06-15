@@ -1,12 +1,11 @@
 package com.dassault.medidatanotificationdemo;
 
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -17,27 +16,37 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.dassault.medidatanotificationdemo.notification.DateUtils;
-import com.dassault.medidatanotificationdemo.notification.NotificationAlarmReceiver;
+import com.dassault.medidatanotificationdemo.notification.NotificationService;
+import com.dassault.medidatanotificationdemo.notification.ShowDataActivity;
+import com.dassault.medidatanotificationdemo.notification.model.CustomNotification;
+import com.dassault.medidatanotificationdemo.notification.model.NotificationDataSet;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private EditText etStartDate, etEndDate, etStartTime, etEndTime, etPercentage;
+    private EditText etStartDate, etEndDate, etStartTime, etEndTime, etPercentage, etForm;
     private int mYear, mMonth, mDay, mHour, mMinute;
+
+    private boolean shouldNotifyToService = false;
+    private final static String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Button btCreateNotification = findViewById(R.id.chanel1);
+        Button btShowData = findViewById(R.id.show_data);
         etStartDate = findViewById(R.id.et_start_date);
         etEndDate = findViewById(R.id.et_end_date);
         etStartTime = findViewById(R.id.et_start_time);
         etEndTime = findViewById(R.id.et_end_time);
         etPercentage = findViewById(R.id.et_per);
+        etForm = findViewById(R.id.et_form);
 
         btCreateNotification.setOnClickListener(this);
+        btShowData.setOnClickListener(this);
         etStartDate.setOnClickListener(this);
         etEndDate.setOnClickListener(this);
         etStartTime.setOnClickListener(this);
@@ -50,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.chanel1:
-                createNotification();
+                checkMapDataSet();
                 break;
             case R.id.et_start_date:
                 showDatePicker(etStartDate);
@@ -65,28 +74,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.et_end_time:
                 showTimePicker(etEndTime);
                 break;
+            case R.id.show_data:
+                startActivity(new Intent(this, ShowDataActivity.class));
+                break;
 
             default://fallout
         }
-    }
-
-    private void createNotification() {
-        String startDate = etStartDate.getText().toString() + " " + etStartTime.getText().toString();
-        String endDate = etEndDate.getText().toString() + " " + etEndTime.getText().toString();
-        int percentage = Integer.parseInt(etPercentage.getText().toString());
-        Date completeDate = DateUtils.getDateAfterCompletion(startDate, endDate, percentage);
-        String finalDate = DateUtils.format.format(completeDate);
-        Toast.makeText(this, "Notification created for date " + finalDate, Toast.LENGTH_SHORT).show();
-        setAlarm(completeDate);
-    }
-
-
-    public void setAlarm(Date completeDate) {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
-        alarmIntent.putExtra("TIME", etPercentage.getText().toString());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, completeDate.getTime(), 0, pendingIntent);// Millisec * Second * Minute
     }
 
     private void showDatePicker(final EditText et) {
@@ -96,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDay = c.get(Calendar.DAY_OF_MONTH);
 
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+        final DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 new DatePickerDialog.OnDateSetListener() {
 
                     @Override
@@ -115,14 +108,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 }, mYear, mMonth, mDay);
-        datePickerDialog.show();
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                datePickerDialog.show();
+
+            }
+        }, 300);
+
     }
 
     private void showTimePicker(final EditText et) {
         final Calendar c = Calendar.getInstance();
         mHour = c.get(Calendar.HOUR_OF_DAY);
         mMinute = c.get(Calendar.MINUTE);
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+        final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
 
                     @Override
@@ -136,7 +137,78 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         et.setText(hourOfDay + ":" + min + ":" + "00");
                     }
                 }, mHour, mMinute, true);
-        timePickerDialog.show();
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                timePickerDialog.show();
+
+            }
+        }, 300);
+
+    }
+
+    private void checkMapDataSet() {
+        String[] keyArray = etForm.getText().toString().split(",");
+        if (keyArray.length == 0) {
+            keyArray[0] = etForm.getText().toString();
+        }
+        for (String key : keyArray) {
+            if (!NotificationDataSet.notificationMap.containsKey(key)) {
+                NotificationDataSet.notificationMap.put(key, new ArrayList<CustomNotification>());
+            }
+            insertDataInMap(key);
+        }
+        syncDataToService();
+    }
+
+    private void insertDataInMap(String key) {
+        String startDate = etStartDate.getText().toString() + " " + etStartTime.getText().toString();
+        String endDate = etEndDate.getText().toString() + " " + etEndTime.getText().toString();
+        String[] percentage = etPercentage.getText().toString().split(",");
+        if (percentage.length == 0) {
+            percentage[0] = etPercentage.getText().toString();
+        }
+        ArrayList<CustomNotification> list = NotificationDataSet.notificationMap.get(key);
+        if (!list.isEmpty()) {
+            for (String per : percentage) {
+                boolean isPercentageHaving = isMapContains(list, per);
+                if (!isPercentageHaving) {
+                    shouldNotifyToService = true;
+                    list.add(new CustomNotification(Integer.parseInt(per), "Schedule notification  for" + key + " At " + per + "%", startDate, endDate, false));
+                }
+            }
+        } else {
+            shouldNotifyToService = true;
+            for (String per : percentage) {
+                list.add(new CustomNotification(Integer.parseInt(per), "Schedule notification  for " + key + " At " + per + "%", startDate, endDate, false));
+            }
+        }
+
+    }
+
+    private boolean isMapContains(ArrayList<CustomNotification> list, String percentage) {
+        boolean flag = false;
+        for (CustomNotification objCustomNotification : list) {
+            if (objCustomNotification.getPercentage() == Integer.parseInt(percentage)) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
+
+    private void syncDataToService() {
+        if (shouldNotifyToService) {
+            shouldNotifyToService = false;
+            Log.d(TAG, "Sync Service init called");
+            Intent intent = new Intent(MainActivity.this, NotificationService.class);
+            startService(intent);
+            Toast.makeText(this, "Notification created successfully.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Notification is already triggered", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 }
