@@ -1,7 +1,10 @@
 package com.dassault.medidatanotificationdemo;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +19,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.dassault.medidatanotificationdemo.notification.DateUtils;
+import com.dassault.medidatanotificationdemo.notification.NotificationAlarmReceiver;
 import com.dassault.medidatanotificationdemo.notification.NotificationService;
 import com.dassault.medidatanotificationdemo.notification.ShowDataActivity;
 import com.dassault.medidatanotificationdemo.notification.model.CustomNotification;
@@ -26,7 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private EditText etStartDate, etEndDate, etStartTime, etEndTime, etPercentage, etForm;
+    private EditText etStartDate, etEndDate, etStartTime, etEndTime, etPercentage, etForm, etRepeatTime, etRepeatCount;
     private int mYear, mMonth, mDay, mHour, mMinute;
 
     private boolean shouldNotifyToService = false;
@@ -38,14 +42,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         Button btCreateNotification = findViewById(R.id.chanel1);
         Button btShowData = findViewById(R.id.show_data);
+        Button btRepeatAlarm = findViewById(R.id.bt_repeat_alarm);
         etStartDate = findViewById(R.id.et_start_date);
         etEndDate = findViewById(R.id.et_end_date);
         etStartTime = findViewById(R.id.et_start_time);
         etEndTime = findViewById(R.id.et_end_time);
         etPercentage = findViewById(R.id.et_per);
         etForm = findViewById(R.id.et_form);
+        etRepeatCount = findViewById(R.id.et_repeat_count);
+        etRepeatTime = findViewById(R.id.et_repeat_time);
 
         btCreateNotification.setOnClickListener(this);
+        btRepeatAlarm.setOnClickListener(this);
         btShowData.setOnClickListener(this);
         etStartDate.setOnClickListener(this);
         etEndDate.setOnClickListener(this);
@@ -77,9 +85,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.show_data:
                 startActivity(new Intent(this, ShowDataActivity.class));
                 break;
+            case R.id.bt_repeat_alarm:
+                setRepeatAlarm();
+                break;
 
             default://fallout
         }
+    }
+
+    private void setRepeatAlarm() {
+        int count = Integer.parseInt(etRepeatCount.getText().toString());
+        int repeatAfter = Integer.parseInt(etRepeatTime.getText().toString());
+
+        long alarmTimestamp = System.currentTimeMillis();
+        for (int i = 0; i < count; i++) {
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
+            alarmIntent.putExtra("Message", "Alarm count " + i);
+            final int id = (int) System.currentTimeMillis();
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id, alarmIntent, 0);
+            alarmTimestamp = alarmTimestamp + repeatAfter;
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimestamp, pendingIntent);
+        }
+
     }
 
     private void showDatePicker(final EditText et) {

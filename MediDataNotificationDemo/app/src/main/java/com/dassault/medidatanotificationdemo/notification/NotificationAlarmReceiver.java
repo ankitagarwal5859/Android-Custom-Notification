@@ -16,7 +16,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
         String message = intent.getExtras().getString("Message");
         Log.d(TAG, "Alarm receiver called!!!!" + message);
         Random r = new Random();
-        int notificationId = r.nextInt(100) + 1;
+        int notificationId = r.nextInt(
+                100) + 1;
         NotificationUtils.createNotification(context, "1", "Testing", "Medidata", "Medidata", message, notificationId);
 
     }
