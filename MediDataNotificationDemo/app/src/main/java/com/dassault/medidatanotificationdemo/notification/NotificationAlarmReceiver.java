@@ -9,6 +9,7 @@ import java.util.Random;
 
 public class NotificationAlarmReceiver extends BroadcastReceiver {
     private final static String TAG = NotificationAlarmReceiver.class.getSimpleName();
+    public final static String ACTION = "com.dassault.medidatanotificationdemo.notification.alarm";
 
     @Override
 

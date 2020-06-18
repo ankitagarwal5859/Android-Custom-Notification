@@ -91,28 +91,63 @@
             android:layout_marginTop="10dp"
             android:padding="10dp"
             android:text="Show Data" />
-        <EditText
-            android:id="@+id/et_repeat_count"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:inputType="number"
-            android:hint="Repeat alarm count"></EditText>
-        <EditText
-            android:id="@+id/et_repeat_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:inputType="number"
-            android:hint="Repeat after time in milli Second"></EditText>
-        <Button
-            android:id="@+id/bt_repeat_alarm"
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/et_repeat_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Repeat alarm count"
+                android:inputType="number"></EditText>
+
+            <EditText
+                android:id="@+id/et_repeat_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Repeat after time in milli Second"
+                android:inputType="number"></EditText>
+
+            <Button
+                android:id="@+id/bt_repeat_alarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:padding="10dp"
+                android:text="Repeat Alarm" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:padding="10dp"
-            android:text="Repeat Alarm" />
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/et_alarm_trigger"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Alarm repeat after time in Milli second"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/bt_set_alarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:padding="10dp"
+                android:text="Set / Update Alarm" />
+        </LinearLayout>
+
+
     </LinearLayout>
 
 

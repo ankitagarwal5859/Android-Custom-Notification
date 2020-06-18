@@ -30,7 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private EditText etStartDate, etEndDate, etStartTime, etEndTime, etPercentage, etForm, etRepeatTime, etRepeatCount;
+    private EditText etStartDate, etEndDate, etStartTime, etEndTime, etPercentage, etForm, etRepeatTime, etRepeatCount, etAlarmTrigger;
     private int mYear, mMonth, mDay, mHour, mMinute;
 
     private boolean shouldNotifyToService = false;
@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button btCreateNotification = findViewById(R.id.chanel1);
         Button btShowData = findViewById(R.id.show_data);
         Button btRepeatAlarm = findViewById(R.id.bt_repeat_alarm);
+
+        Button btSetAlarm = findViewById(R.id.bt_set_alarm);
         etStartDate = findViewById(R.id.et_start_date);
         etEndDate = findViewById(R.id.et_end_date);
         etStartTime = findViewById(R.id.et_start_time);
@@ -51,8 +53,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         etForm = findViewById(R.id.et_form);
         etRepeatCount = findViewById(R.id.et_repeat_count);
         etRepeatTime = findViewById(R.id.et_repeat_time);
+        etAlarmTrigger = findViewById(R.id.et_alarm_trigger);
 
         btCreateNotification.setOnClickListener(this);
+        btSetAlarm.setOnClickListener(this);
         btRepeatAlarm.setOnClickListener(this);
         btShowData.setOnClickListener(this);
         etStartDate.setOnClickListener(this);
@@ -88,8 +92,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.bt_repeat_alarm:
                 setRepeatAlarm();
                 break;
-
+            case R.id.bt_set_alarm:
+                setOrUpdateAlarm(0);
+                break;
             default://fallout
+        }
+    }
+
+    private void setOrUpdateAlarm(int FormId) {
+        Toast.makeText(this,"Alarm set",Toast.LENGTH_SHORT).show();
+        int repeatTime = Integer.parseInt(etAlarmTrigger.getText().toString());
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
+        alarmIntent.putExtra("Message", "Alarm triggered for time " + repeatTime);
+        alarmIntent.setAction(NotificationAlarmReceiver.ACTION);
+        checkAndCancelIfAlarmExists(FormId);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), FormId,
+                alarmIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + repeatTime, repeatTime, pendingIntent);
+
+    }
+
+    private void checkAndCancelIfAlarmExists(int formId) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
+        alarmIntent.setAction(NotificationAlarmReceiver.ACTION);
+        PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), formId,
+                alarmIntent,
+                PendingIntent.FLAG_NO_CREATE);
+        boolean alarmUp = (pi != null);
+        if (alarmUp) {
+            Log.d("NotificationAlarmReceiver", "Alarm is already active");
+            Log.d("NotificationAlarmReceiver", "Canceling Alarm");
+            alarmManager.cancel(pi);
+            pi.cancel();
+        }
+        else{
+            Log.d("NotificationAlarmReceiver", "Alarm is not active so create a new alarm");
         }
     }
 
@@ -103,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
             alarmIntent.putExtra("Message", "Alarm count " + i);
             final int id = (int) System.currentTimeMillis();
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id, alarmIntent, 0);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), id, alarmIntent, 0);
             alarmTimestamp = alarmTimestamp + repeatAfter;
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimestamp, pendingIntent);
         }
