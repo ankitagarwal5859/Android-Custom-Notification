@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button btRepeatAlarm = findViewById(R.id.bt_repeat_alarm);
 
         Button btSetAlarm = findViewById(R.id.bt_set_alarm);
+        Button btAnyTime = findViewById(R.id.bt_any_time);
         etStartDate = findViewById(R.id.et_start_date);
         etEndDate = findViewById(R.id.et_end_date);
         etStartTime = findViewById(R.id.et_start_time);
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btSetAlarm.setOnClickListener(this);
         btRepeatAlarm.setOnClickListener(this);
         btShowData.setOnClickListener(this);
+        btAnyTime.setOnClickListener(this);
         etStartDate.setOnClickListener(this);
         etEndDate.setOnClickListener(this);
         etStartTime.setOnClickListener(this);
@@ -73,8 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.chanel1:
-                //checkMapDataSet();
-                createAnyTimeNotificationDataSet();
+                checkMapDataSet();
                 break;
             case R.id.et_start_date:
                 showDatePicker(etStartDate);
@@ -97,6 +98,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_set_alarm:
                 setOrUpdateAlarm(0);
+                break;
+            case R.id.bt_any_time:
+                createAnyTimeNotificationDataSet();
                 break;
             default://fallout
         }
@@ -286,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String dayOfOccurrence2 = "Th";
         String dayOfOccurrence3 = "M,Tu,Sa";
         String dayOfOccurrence4 = "Th";
-        CustomNotificationAnyTimeFormTemplate dataSet1 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence1, "09:05,18:56,19:00", "Alarm for formOID-1 Type 1");
+        CustomNotificationAnyTimeFormTemplate dataSet1 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence1, "16:19,18:56,19:00", "Alarm for formOID-1 Type 1");
 
         CustomNotificationAnyTimeFormTemplate dataSet2 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence2, "16:00", "Alarm for formOID-1 Type 2");
 
@@ -294,14 +298,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         CustomNotificationAnyTimeFormTemplate dataSet4 = new CustomNotificationAnyTimeFormTemplate("formOID-2", dayOfOccurrence4, "16:00", "Alarm for formOID-2 Type 2");
         dataSet.add(dataSet1);
-       // dataSet.add(dataSet2);
-       // dataSet.add(dataSet3);
-      //  dataSet.add(dataSet4);
+        // dataSet.add(dataSet2);
+        // dataSet.add(dataSet3);
+        //  dataSet.add(dataSet4);
         triggerAnyTimeNotification();
 
     }
 
     private void triggerAnyTimeNotification() {
+        Toast.makeText(this, "Any time notification triggered", Toast.LENGTH_SHORT).show();
         for (CustomNotificationAnyTimeFormTemplate obj : dataSet) {
             setAlarm(obj);
         }
@@ -311,14 +316,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setAlarm(CustomNotificationAnyTimeFormTemplate obj) {
         String[] totalAlarm = obj.getWeekDayRecurrences().split(",");
         String[] deliveryTime = obj.getDeliveryTime().split(",");
-        long REPEAT_TIMESTAMP = 24 * 60 * 60 * 1000; //24hours
+
         for (int i = 0; i < totalAlarm.length; i++) {
             String time = deliveryTime[i];
             String hourMin[] = time.split(":");
             int hour = Integer.parseInt(hourMin[0]);
             int min = Integer.parseInt(hourMin[1]);
             Calendar alarmCalendar = Calendar.getInstance();
-           
+
             alarmCalendar.set(Calendar.DAY_OF_WEEK, DateUtils.getDay(totalAlarm[i]));
 
             alarmCalendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -327,12 +332,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
-            alarmIntent.putExtra("Message", obj.getMessage()+" for time "+time);
+            alarmIntent.putExtra("Message", obj.getMessage() + " for time " + time);
             final int id = (int) System.currentTimeMillis();
             PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), id, alarmIntent, 0);
             Long alarmTime = alarmCalendar.getTimeInMillis();
 
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, REPEAT_TIMESTAMP, pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, AlarmManager.INTERVAL_DAY * 7, pendingIntent);
 
         }
 

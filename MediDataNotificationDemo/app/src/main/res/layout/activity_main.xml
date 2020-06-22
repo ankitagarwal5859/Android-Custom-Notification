@@ -145,6 +145,14 @@
                 android:layout_marginTop="20dp"
                 android:padding="10dp"
                 android:text="Set / Update Alarm" />
+            <Button
+                android:id="@+id/bt_any_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:padding="10dp"
+                android:text="Show Any Time Notification" />
         </LinearLayout>
 
 

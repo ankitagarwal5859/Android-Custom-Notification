@@ -33,14 +33,6 @@ public class DateUtils {
         return dateAfterCompletePercentage;
     }
 
-   /* public static String getWeekDayRecurrences(String weekDayRecurrences) {
-        ArrayList<String> dayList = new ArrayList();
-        String[] dayArray = weekDayRecurrences.split(",");
-        for (String day : dayArray) {
-            dayList.add(getDay(day));
-        }
-        return android.text.TextUtils.join(",", dayList);
-    }*/
 
     public static int getDay(String dayString) {
         int day = 0;
