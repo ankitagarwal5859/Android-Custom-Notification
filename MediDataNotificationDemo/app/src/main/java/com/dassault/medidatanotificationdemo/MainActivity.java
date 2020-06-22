@@ -23,6 +23,7 @@ import com.dassault.medidatanotificationdemo.notification.NotificationAlarmRecei
 import com.dassault.medidatanotificationdemo.notification.NotificationService;
 import com.dassault.medidatanotificationdemo.notification.ShowDataActivity;
 import com.dassault.medidatanotificationdemo.notification.model.CustomNotification;
+import com.dassault.medidatanotificationdemo.notification.model.CustomNotificationAnyTimeFormTemplate;
 import com.dassault.medidatanotificationdemo.notification.model.NotificationDataSet;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean shouldNotifyToService = false;
     private final static String TAG = MainActivity.class.getSimpleName();
+    private ArrayList<CustomNotificationAnyTimeFormTemplate> dataSet = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.chanel1:
-                checkMapDataSet();
+                //checkMapDataSet();
+                createAnyTimeNotificationDataSet();
                 break;
             case R.id.et_start_date:
                 showDatePicker(etStartDate);
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setOrUpdateAlarm(int FormId) {
-        Toast.makeText(this,"Alarm set",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Alarm set", Toast.LENGTH_SHORT).show();
         int repeatTime = Integer.parseInt(etAlarmTrigger.getText().toString());
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
@@ -127,8 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d("NotificationAlarmReceiver", "Canceling Alarm");
             alarmManager.cancel(pi);
             pi.cancel();
-        }
-        else{
+        } else {
             Log.d("NotificationAlarmReceiver", "Alarm is not active so create a new alarm");
         }
     }
@@ -275,6 +277,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "Notification created successfully.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Notification is already triggered", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void createAnyTimeNotificationDataSet() {
+        String dayOfOccurrence1 = "M,Tu,Sa";
+        String dayOfOccurrence2 = "Th";
+        String dayOfOccurrence3 = "M,Tu,Sa";
+        String dayOfOccurrence4 = "Th";
+        CustomNotificationAnyTimeFormTemplate dataSet1 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence1, "09:05,18:56,19:00", "Alarm for formOID-1 Type 1");
+
+        CustomNotificationAnyTimeFormTemplate dataSet2 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence2, "16:00", "Alarm for formOID-1 Type 2");
+
+        CustomNotificationAnyTimeFormTemplate dataSet3 = new CustomNotificationAnyTimeFormTemplate("formOID-2", dayOfOccurrence3, "10:00,11:00,4:00", "Alarm for formOID-2 Type 1");
+
+        CustomNotificationAnyTimeFormTemplate dataSet4 = new CustomNotificationAnyTimeFormTemplate("formOID-2", dayOfOccurrence4, "16:00", "Alarm for formOID-2 Type 2");
+        dataSet.add(dataSet1);
+       // dataSet.add(dataSet2);
+       // dataSet.add(dataSet3);
+      //  dataSet.add(dataSet4);
+        triggerAnyTimeNotification();
+
+    }
+
+    private void triggerAnyTimeNotification() {
+        for (CustomNotificationAnyTimeFormTemplate obj : dataSet) {
+            setAlarm(obj);
+        }
+
+    }
+
+    private void setAlarm(CustomNotificationAnyTimeFormTemplate obj) {
+        String[] totalAlarm = obj.getWeekDayRecurrences().split(",");
+        String[] deliveryTime = obj.getDeliveryTime().split(",");
+        long REPEAT_TIMESTAMP = 24 * 60 * 60 * 1000; //24hours
+        for (int i = 0; i < totalAlarm.length; i++) {
+            String time = deliveryTime[i];
+            String hourMin[] = time.split(":");
+            int hour = Integer.parseInt(hourMin[0]);
+            int min = Integer.parseInt(hourMin[1]);
+            Calendar alarmCalendar = Calendar.getInstance();
+           
+            alarmCalendar.set(Calendar.DAY_OF_WEEK, DateUtils.getDay(totalAlarm[i]));
+
+            alarmCalendar.set(Calendar.HOUR_OF_DAY, hour);
+            alarmCalendar.set(Calendar.MINUTE, min);
+            alarmCalendar.set(Calendar.SECOND, 0);
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
+            alarmIntent.putExtra("Message", obj.getMessage()+" for time "+time);
+            final int id = (int) System.currentTimeMillis();
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), id, alarmIntent, 0);
+            Long alarmTime = alarmCalendar.getTimeInMillis();
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, REPEAT_TIMESTAMP, pendingIntent);
+
         }
 
     }

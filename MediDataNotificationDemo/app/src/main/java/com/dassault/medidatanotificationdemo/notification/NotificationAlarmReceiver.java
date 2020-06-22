@@ -12,7 +12,6 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
     public final static String ACTION = "com.dassault.medidatanotificationdemo.notification.alarm";
 
     @Override
-
     public void onReceive(Context context, Intent intent) {
         String message = intent.getExtras().getString("Message");
         Log.d(TAG, "Alarm receiver called!!!!" + message);
