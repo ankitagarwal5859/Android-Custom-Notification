@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, ShowDataActivity.class));
                 break;
             case R.id.bt_repeat_alarm:
-                setRepeatAlarm();
+                setRepeatAlarm(0);
                 break;
             case R.id.bt_set_alarm:
                 setOrUpdateAlarm(0);
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void setRepeatAlarm() {
+    private void setRepeatAlarm(int formId) {
         int count = Integer.parseInt(etRepeatCount.getText().toString());
         int repeatAfter = Integer.parseInt(etRepeatTime.getText().toString());
 
@@ -286,11 +286,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void createAnyTimeNotificationDataSet() {
-        String dayOfOccurrence1 = "M,Tu,Sa";
+        String dayOfOccurrence1 = "W,Th,Sa";
         String dayOfOccurrence2 = "Th";
         String dayOfOccurrence3 = "M,Tu,Sa";
         String dayOfOccurrence4 = "Th";
-        CustomNotificationAnyTimeFormTemplate dataSet1 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence1, "16:19,18:56,19:00", "Alarm for formOID-1 Type 1");
+        CustomNotificationAnyTimeFormTemplate dataSet1 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence1, "13:57,18:56,19:00", "Alarm for formOID-1 Type 1");
 
         CustomNotificationAnyTimeFormTemplate dataSet2 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence2, "16:00", "Alarm for formOID-1 Type 2");
 
@@ -342,5 +342,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
 
 }

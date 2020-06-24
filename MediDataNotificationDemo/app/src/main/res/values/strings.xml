@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">MediDataNotificationDemo</string>
     <string name="change_password_note"><![CDATA[<ol><li>Your password should contain at least one character of a-z, A-Z and 0-9. No special character is allowed.</li> <li>Please do not use any of your last three passwords.</li> <li>Please do not enter your User ID as password.</li> <li>Password minimum of 8 and maximum of 20 characters.</li></ol>]]></string>
+
+    <string name="alarm_id_key" description="Save alarm id in preference" translatable="false">alarmId</string>
 </resources>

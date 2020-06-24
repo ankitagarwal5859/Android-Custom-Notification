@@ -31,6 +31,7 @@ public class NotificationUtils {
                     NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(chanelDescription);
             channel.setShowBadge(true);
+
             mNotificationManager.createNotificationChannel(channel);
         }
         Notification notification = new NotificationCompat.Builder(context, chanelId)
@@ -59,11 +60,13 @@ public class NotificationUtils {
                         .setGroup(GROUP_KEY)
                         //set this notification as the summary for the group
                         .setGroupSummary(true)
+
                         .build();
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(notificationId, notification);
         notificationManager.notify(SUMMARY_ID, summaryNotification);
+
 
         /*Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
