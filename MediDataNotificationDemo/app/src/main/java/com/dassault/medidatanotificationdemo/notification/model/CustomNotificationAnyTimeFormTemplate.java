@@ -5,6 +5,8 @@ public class CustomNotificationAnyTimeFormTemplate {
     private String weekDayRecurrences;
     private String deliveryTime;
     private String message;
+    private long openTime;
+    private long closeTime;
 
     public CustomNotificationAnyTimeFormTemplate() {
         super();
@@ -47,6 +49,22 @@ public class CustomNotificationAnyTimeFormTemplate {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public long getOpenTime() {
+        return openTime;
+    }
+
+    public void setOpenTime(long openTime) {
+        this.openTime = openTime;
+    }
+
+    public long getCloseTime() {
+        return closeTime;
+    }
+
+    public void setCloseTime(long closeTime) {
+        this.closeTime = closeTime;
     }
 
     @Override

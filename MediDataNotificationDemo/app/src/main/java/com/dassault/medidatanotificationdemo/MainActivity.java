@@ -286,11 +286,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void createAnyTimeNotificationDataSet() {
-        String dayOfOccurrence1 = "W,Th,Sa";
+        String dayOfOccurrence1 = "M,Tu,W";
         String dayOfOccurrence2 = "Th";
         String dayOfOccurrence3 = "M,Tu,Sa";
         String dayOfOccurrence4 = "Th";
         CustomNotificationAnyTimeFormTemplate dataSet1 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence1, "13:57,18:56,19:00", "Alarm for formOID-1 Type 1");
+        dataSet1.setOpenTime(1593109800000L);//26Jun 00:00:00 1593109800000L
+        dataSet1.setCloseTime(1593541740000L);//30 June 23:59:00 //1593109800000L
+
 
         CustomNotificationAnyTimeFormTemplate dataSet2 = new CustomNotificationAnyTimeFormTemplate("formOID-1", dayOfOccurrence2, "16:00", "Alarm for formOID-1 Type 2");
 
@@ -318,29 +321,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String[] deliveryTime = obj.getDeliveryTime().split(",");
 
         for (int i = 0; i < totalAlarm.length; i++) {
-            String time = deliveryTime[i];
-            String hourMin[] = time.split(":");
-            int hour = Integer.parseInt(hourMin[0]);
-            int min = Integer.parseInt(hourMin[1]);
-            Calendar alarmCalendar = Calendar.getInstance();
+            for (int j = 0; j < deliveryTime.length; j++) {
+                String time = deliveryTime[j];
+                String hourMin[] = time.split(":");
 
-            alarmCalendar.set(Calendar.DAY_OF_WEEK, DateUtils.getDay(totalAlarm[i]));
+                int hour = Integer.parseInt(hourMin[0]);
+                int min = Integer.parseInt(hourMin[1]);
+                Calendar alarmCalendar = Calendar.getInstance();
 
-            alarmCalendar.set(Calendar.HOUR_OF_DAY, hour);
-            alarmCalendar.set(Calendar.MINUTE, min);
-            alarmCalendar.set(Calendar.SECOND, 0);
+                alarmCalendar.set(Calendar.DAY_OF_WEEK, DateUtils.getDay(totalAlarm[i]));
 
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
-            alarmIntent.putExtra("Message", obj.getMessage() + " for time " + time);
-            final int id = (int) System.currentTimeMillis();
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), id, alarmIntent, 0);
-            Long alarmTime = alarmCalendar.getTimeInMillis();
+                alarmCalendar.set(Calendar.HOUR_OF_DAY, hour);
+                alarmCalendar.set(Calendar.MINUTE, min);
+                alarmCalendar.set(Calendar.SECOND, 0);
+                Long alarmTime = alarmCalendar.getTimeInMillis();
+                if (alarmTime < System.currentTimeMillis()) {
+                    alarmTime = alarmTime + AlarmManager.INTERVAL_DAY * 7;
+                }
 
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+                if (shouldSetAnyTimeNotification(obj.getOpenTime(), obj.getCloseTime(), alarmTime)) {
+                    Log.d("Ankit", "Alarm is setting up for " + totalAlarm[i] + "" + time + "Alarm time " + alarmTime);
+
+                    AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    Intent alarmIntent = new Intent(this, NotificationAlarmReceiver.class);
+                    alarmIntent.putExtra("Message", obj.getMessage() + " for time " + time);
+                    final int id = (int) System.currentTimeMillis();
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), id, alarmIntent, 0);
+                    // alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+                } else {
+                    Log.d("Ankit", "Alarm is not setting up for " + totalAlarm[i] + "" + time);
+                }
+            }
+
 
         }
 
+
+    }
+
+    private boolean shouldSetAnyTimeNotification(long formOpenDate, long formCloseDate, long notificationDate) {
+        boolean shouldShowNotification = true;
+
+        if (formOpenDate != 0 && notificationDate < formOpenDate) {
+            shouldShowNotification = false;
+        }
+        if (formCloseDate != 0 && notificationDate > formCloseDate) {
+            shouldShowNotification = false;
+        }
+
+        return shouldShowNotification;
     }
 
 
